@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-deep: #0a0a0c;
+  --bg-panel: rgba(20, 20, 25, 0.7);
+  --accent-cyan: #00f2ff;
+  --accent-blue: #3b82f6;
+  --accent-crimson: #ff2d55;
+  --accent-emerald: #10b981;
+  --text-main: #e2e8f0;
+  --text-dim: #94a3b8;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glow-cyan: 0 0 20px rgba(0, 242, 255, 0.3);
+  --glow-crimson: 0 0 20px rgba(255, 45, 85, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 45, 85, 0.05) 0%, transparent 40%);
+}
+
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 350px 1fr 350px;
+  grid-template-rows: 80px 1fr 250px;
+  gap: 20px;
+  padding: 20px;
+  height: 100vh;
+}
+
+header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background: var(--bg-panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stat-pill {
+  padding: 6px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-family: 'JetBrains+Mono', monospace;
+  color: var(--accent-cyan);
+}
+
+.panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--glass-border);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Trust Gauge Styles */
+.center-display {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.stat-pill.ws-online { border-color: #00f2ff; color: #00f2ff; }
+.stat-pill.ws-error { border-color: #ff2d55; color: #ff2d55; }
+.stat-pill.ws-offline { border-color: var(--text-dim); color: var(--text-dim); }
+
+.trust-gauge {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 4px solid var(--glass-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--glow-cyan);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.trust-gauge.danger {
+  border-color: var(--accent-crimson);
+  box-shadow: var(--glow-crimson);
+}
+
+.score-value {
+  font-size: 5rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.score-label {
+  position: absolute;
+  bottom: 60px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* Event Feed Styles */
+.event-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.severity-high { border-left: 4px solid var(--accent-crimson); }
+.severity-medium { border-left: 4px solid orange; }
+.severity-low { border-left: 4px solid var(--accent-cyan); }
+
+.event-time {
+  font-family: 'JetBrains+Mono', monospace;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  margin-bottom: 4px;
+}
+
+/* Action History Panel */
+.action-card {
+  margin: 10px;
+  padding: 12px;
+  background: rgba(255, 45, 85, 0.1);
+  border-radius: 8px;
+  border-left: 2px solid var(--accent-crimson);
+}
+
+.action-type {
+  font-weight: 700;
+  color: var(--accent-crimson);
+  font-size: 0.75rem;
+  margin-bottom: 5px;
+}
+
+.action-target {
+  font-family: 'JetBrains+Mono', monospace;
+  font-size: 0.8rem;
+}

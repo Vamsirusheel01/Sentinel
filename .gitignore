@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+bin/
+lib/
+# Node.js
+node_modules/
+dist/
+dist-ssr/
+*.local
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# IDE
+.vscode/
+.idea/
+# Sentinel specific
+agent/rules/temp_*.yar
+C:/temp/
+discovery.txt
+malware.txt
