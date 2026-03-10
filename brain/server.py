@@ -12,7 +12,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from brain.trust_engine import TrustEngine
-from shared.models import SystemEvent, Severity
+from shared.models import SystemEvent, Severity, ActionType, SentinelAction, ActionStatus
 
 app = FastAPI()
 engine = TrustEngine()
@@ -48,7 +48,14 @@ async def websocket_endpoint(websocket: WebSocket):
             data = {
                 "score": engine.trust_score,
                 "events": [{"time": e.timestamp.strftime("%H:%M:%S"), "msg": e.description, "severity": e.severity.name.lower(), "source": e.source} for e in reversed(engine.event_history[-20:])],
-                "actions": [{"type": a.action_type.value, "target": a.target, "time": a.timestamp.strftime("%H:%M:%S")} for a in reversed(engine.action_history[-10:])],
+                "actions": [{
+                    "id": a.id,
+                    "type": a.action_type.value,
+                    "target": a.target,
+                    "status": a.status.value,
+                    "confidence": a.confidence,
+                    "time": a.timestamp.strftime("%H:%M:%S")
+                } for a in reversed(engine.action_history[-15:])],
                 "heartbeat": datetime.now().isoformat()
             }
             await websocket.send_json(data)
@@ -73,24 +80,31 @@ async def receive_event(source: str, description: str, severity: str):
         "critical": Severity.CRITICAL
     }
     sev = sev_map.get(severity.lower(), Severity.LOW)
-    actions = inject_event(source, description, sev)
-    return {
-        "status": "event_received", 
-        "actions": [{"type": a.action_type.value, "target": a.target} for a in actions]
-    }
-
-# Internal method to add events from the Agent
-def inject_event(source: str, desc: str, sev: Severity):
     event = SystemEvent(
-        id=str(len(engine.event_history)),
+        id=datetime.now().strftime("%Y%m%d%H%M%S"),
         timestamp=datetime.now(),
         source=source,
-        description=desc,
+        description=description,
         severity=sev
     )
-    # The brain processes the event and automatically maps it to actions
-    actions = engine.process_event(event)
-    return actions
+    triggered_actions = engine.process_event(event)
+    
+    # Return formatted actions for the agent
+    return {
+        "status": "event_received",
+        "actions": [{
+            "id": a.id,
+            "type": a.action_type.value,
+            "target": a.target,
+            "status": a.status.value,
+            "confidence": a.confidence
+        } for a in triggered_actions]
+    }
+
+@app.post("/approve")
+async def approve_action(action_id: str, approved: bool):
+    success = engine.receive_feedback(action_id, approved)
+    return {"status": "success" if success else "failed"}
 
 @app.on_event("startup")
 async def startup_event():

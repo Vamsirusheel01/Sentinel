@@ -60,6 +60,7 @@ header {
   text-transform: uppercase;
   background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -167,21 +168,77 @@ header {
 
 /* Action History Panel */
 .action-card {
-  margin: 10px;
-  padding: 12px;
-  background: rgba(255, 45, 85, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
   border-radius: 8px;
-  border-left: 2px solid var(--accent-crimson);
+  padding: 15px;
+  margin: 10px;
+  transition: all 0.3s ease;
+}
+
+.action-card.pending {
+  border-left: 4px solid #ffcc00;
+  background: rgba(255, 204, 0, 0.05);
+}
+
+.action-card.approved {
+  border-left: 4px solid #00f2ff;
+}
+
+.action-card.rejected {
+  border-left: 4px solid #ff2d55;
+  opacity: 0.6;
 }
 
 .action-type {
   font-weight: 700;
-  color: var(--accent-crimson);
+  color: var(--accent-cyan);
   font-size: 0.75rem;
-  margin-bottom: 5px;
+}
+
+.confidence-tag {
+  font-size: 0.6rem;
+  font-weight: bold;
+  background: var(--accent-cyan);
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains+Mono', monospace;
 }
 
 .action-target {
   font-family: 'JetBrains+Mono', monospace;
   font-size: 0.8rem;
+  margin-top: 5px;
 }
+
+.approval-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-approve, .btn-reject {
+  flex: 1;
+  border: none;
+  padding: 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-approve {
+  background: var(--accent-cyan);
+  color: #000;
+}
+
+.btn-reject {
+  background: rgba(255, 45, 85, 0.2);
+  color: #ff2d55;
+  border: 1px solid #ff2d55;
+}
+
+.btn-approve:hover { filter: brightness(1.2); transform: translateY(-1px); }
+.btn-reject:hover { background: #ff2d55; color: #fff; transform: translateY(-1px); }

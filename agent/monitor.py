@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+import itertools
 
 # Ensure project root is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -11,6 +12,7 @@ from shared.models import SentinelAction, ActionType
 import time
 import requests
 import subprocess
+import logging
 from datetime import datetime
 BRAIN_URL = "http://localhost:8000/inject"
 RULES_PATH = os.path.join(os.path.dirname(__file__), "rules", "base_rules.yar")
@@ -19,6 +21,18 @@ SCAN_DIRS = [
     os.path.expanduser("~/Downloads"),
     "C:\\temp"
 ]
+LOG_FILE = os.path.join(os.path.dirname(__file__), "sentinel_agent.log")
+
+# Unified Logging Configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger("SentinelAgent")
 
 class SentinelWatcher:
     """
@@ -29,7 +43,7 @@ class SentinelWatcher:
         self.startup_keys = self._get_startup_keys()
         self.yara = YaraFallback(RULES_PATH)
         self.executor = ActionExecutor(dry_run=dry_run)
-        print(f"[Watcher] YARA rules loaded from {RULES_PATH}")
+        logger.info(f"Sentinel Agent Initialized. Rules: {RULES_PATH}. DryRun: {dry_run}")
         
     def _get_startup_keys(self):
         """
@@ -62,7 +76,7 @@ class SentinelWatcher:
             
             # Skip header line safely
             if len(lines) > 1:
-                for line in lines[1:]:
+                for line in itertools.islice(lines, 1, None):
                     # Check for suspicious process names or window titles
                     for term in suspicious_terms:
                         if term.lower() in line.lower():
@@ -122,24 +136,32 @@ class SentinelWatcher:
                 # Execute any actions returned by the brain
                 actions = data.get("actions", [])
                 for action_data in actions:
-                    action = SentinelAction(
-                        action_type=ActionType(action_data["type"]),
-                        target=action_data["target"],
-                        reason="Autonomous response to detected threat"
-                    )
-                    self.executor.execute(action)
+                    # Human-in-the-loop: Only execute if already approved (High Confidence)
+                    if action_data["status"] == "APPROVED":
+                        action = SentinelAction(
+                            action_type=ActionType(action_data["type"]),
+                            target=action_data["target"],
+                            reason=f"AI Approved Countermeasure (Conf: {action_data.get('confidence', 0):.2f})"
+                        )
+                        self.executor.execute(action)
+                    else:
+                        print(f"[Watcher] Action {action_data['type']} is PENDING human approval.")
             else:
                 print(f"[Watcher] Brain reported error: {response.status_code}")
         except Exception as e:
             print(f"[Watcher] Failed to connect to Brain: {e}")
 
     def run(self):
-        print("Sentinel Watcher started...")
+        logger.info("Sentinel Resident Watcher started (Loop: 10s)")
         while True:
-            self.scan_processes()
-            self.scan_registry()
-            self.scan_directories()
-            time.sleep(5)
+            try:
+                self.scan_processes()
+                self.scan_registry()
+                self.scan_directories()
+            except Exception as e:
+                logger.error(f"Scan Loop Error: {e}")
+            
+            time.sleep(10)
 
 if __name__ == "__main__":
     # Change to dry_run=False to enable real system actions (Requires Admin)

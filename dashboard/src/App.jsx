@@ -55,6 +55,15 @@ function App() {
     return () => ws.close()
   }, [])
 
+  const handleApproval = async (id, approved) => {
+    try {
+      const host = window.location.hostname || 'localhost'
+      await fetch(`http://${host}:8000/approve?action_id=${id}&approved=${approved}`, { method: 'POST' })
+    } catch (err) {
+      console.error('Failed to send approval:', err)
+    }
+  }
+
   return (
     <div className="dashboard-container">
       <header>
@@ -103,10 +112,20 @@ function App() {
             </div>
           ) : (
             actions.map((a, i) => (
-              <div key={i} className="action-card">
-                <div className="action-type">{a.type}</div>
+              <div key={i} className={`action-card ${a.status.toLowerCase()}`}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div className="action-type">{a.type}</div>
+                  <div className="confidence-tag">{(a.confidence * 100).toFixed(0)}% CONF</div>
+                </div>
                 <div className="action-target">Target: {a.target}</div>
-                <div className="event-time" style={{ marginTop: '5px' }}>Executed at {a.time}</div>
+                <div className="event-time" style={{ marginTop: '5px' }}>{a.status === 'PENDING' ? 'AWAITING APPROVAL' : `Executed at ${a.time}`}</div>
+                
+                {a.status === 'PENDING' && (
+                  <div className="approval-actions">
+                    <button className="btn-approve" onClick={() => handleApproval(a.id, true)}>APPROVE</button>
+                    <button className="btn-reject" onClick={() => handleApproval(a.id, false)}>REJECT</button>
+                  </div>
+                )}
               </div>
             ))
           )}

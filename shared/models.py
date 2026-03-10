@@ -19,6 +19,12 @@ class ActionType(Enum):
     BLOCK_IP = "BLOCK_IP"
     REVERT_REGISTRY = "REVERT_REGISTRY"
 
+class ActionStatus(Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    EXECUTED = "EXECUTED"
+
 @dataclass
 class SystemEvent:
     id: str
@@ -35,4 +41,7 @@ class SentinelAction:
     action_type: ActionType
     target: str
     reason: str
+    status: ActionStatus = ActionStatus.APPROVED
+    confidence: float = 1.0
     timestamp: datetime = field(default_factory=datetime.now)
+    id: str = field(default_factory=lambda: datetime.now().strftime("%Y%m%d%H%M%S%f"))

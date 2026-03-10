@@ -22,6 +22,10 @@ Desktop.ini
 .idea/
 # Sentinel specific
 agent/rules/temp_*.yar
+agent/sentinel_agent.log
+brain/sentinel_state.json
+brain/threat_data.csv
+brain/sentinel_brain.pkl
 C:/temp/
 discovery.txt
 malware.txt

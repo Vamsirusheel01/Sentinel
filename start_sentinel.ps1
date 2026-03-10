@@ -7,6 +7,6 @@ Start-Process powershell -ArgumentList "-NoExit -Command python brain\server.py"
 # Start Sentinel Agent (Monitor)
 Start-Process powershell -ArgumentList "-NoExit -Command python agent\monitor.py"
 
-# Start Sentinel Dashboard (Vite)
+# Start Sentinel Dashboard (Desktop App)
 Set-Location dashboard
-Start-Process powershell -ArgumentList "-NoExit -Command npm run dev"
+Start-Process powershell -ArgumentList "-NoExit -Command npm run desktop"
